@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#10131c">
+<title>Chinese Tutor AI</title>
+<style>
+:root{color-scheme:dark;--bg:#10131c;--panel:#191e2b;--line:#2b3243;--text:#f4f6ff;--muted:#9ba5ba;--accent:#80e0c0}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:16px system-ui,sans-serif;min-height:100vh}
+.app{max-width:760px;margin:auto;min-height:100vh;display:flex;flex-direction:column;padding:18px}
+header{display:flex;align-items:center;gap:12px;padding:10px 0 20px;border-bottom:1px solid var(--line)}
+.logo{width:45px;height:45px;border-radius:15px;background:var(--accent);color:#10131c;display:grid;place-items:center;font-size:24px;font-weight:800}
+h1{font-size:19px;margin:0}
+.sub{color:var(--muted);font-size:13px;margin-top:3px}
+.status{margin-left:auto;color:var(--accent);font-size:12px}
+.welcome{padding:30px 4px 15px}
+.welcome h2{font-size:28px;margin:0 0 8px}
+.welcome p{color:var(--muted);line-height:1.6;margin:0}
+.shortcuts{display:flex;flex-wrap:wrap;gap:8px;margin:18px 0}
+button{cursor:pointer;font:inherit}
+.shortcut{background:var(--panel);border:1px solid var(--line);color:var(--text);padding:10px 13px;border-radius:12px;font-size:14px}
+.shortcut:hover{border-color:var(--accent)}
+#chat{flex:1;padding:10px 0 20px}
+.msg{padding:13px 15px;border-radius:16px;margin:12px 0;max-width:90%;white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.6}
+.bot{background:var(--panel);border:1px solid var(--line);margin-right:auto}
+.user{background:#244d49;margin-left:auto;color:white}
+.composer{position:sticky;bottom:0;background:var(--bg);padding:12px 0 8px}
+form{display:flex;gap:8px;background:var(--panel);border:1px solid var(--line);padding:8px;border-radius:17px}
+textarea{flex:1;resize:none;min-height:45px;max-height:130px;background:transparent;border:0;color:var(--text);padding:10px;outline:none;font:inherit}
+#send{border:0;border-radius:12px;background:var(--accent);color:#10131c;padding:0 17px;font-weight:700}
+#send:disabled{opacity:.5}
+.note{text-align:center;color:var(--muted);font-size:11px;margin-top:9px}
+@media(min-width:600px){.app{padding:25px}.welcome h2{font-size:34px}}
+</style>
+</head>
+<body>
+<div class="app">
+<header>
+  <div class="logo">中</div>
+  <div><h1>Chinese Tutor AI</h1><div class="sub">Your Mandarin learning companion</div></div>
+  <div class="status">● Tutor</div>
+</header>
+<section class="welcome">
+  <h2>你好！你好！</h2>
+  <p>Learn Mandarin one step at a time. Practice vocabulary, Pinyin, tones, grammar, and everyday conversations.</p>
+</section>
+<div class="shortcuts">
+  <button class="shortcut" data-prompt="Teach me 5 beginner Mandarin words with characters, Pinyin, tones, and English meanings.">📚 Vocabulary</button>
+  <button class="shortcut" data-prompt="Teach me Mandarin tones with simple examples and a practice question.">🎵 Tones</button>
+  <button class="shortcut" data-prompt="Let's practice a beginner Mandarin conversation. Ask me one question at a time.">💬 Conversation</button>
+  <button class="shortcut" data-prompt="Explain the difference between 你 and 我 with examples.">✍️ Grammar</button>
+</div>
+<main id="chat" aria-live="polite">
+  <div class="msg bot">你好！(Nǐ hǎo!) 👋
+
+I'm your Mandarin tutor. What would you like to learn today?
+
+You can write in English or Chinese.</div>
+</main>
+<div class="composer">
+  <form id="form">
+    <textarea id="input" aria-label="Your message" placeholder="Ask your Chinese tutor..." rows="1" required></textarea>
+    <button id="send" type="submit">Send ➤</button>
+  </form>
+  <div class="note">Practice at your own pace · Mandarin • Pinyin • English</div>
+</div>
+</div>
+<script>
+const chat = document.getElementById('chat');
+const input = document.getElementById('input');
+const form = document.getElementById('form');
+const send = document.getElementById('send');
+
+function addMessage(text, who) {
+  const div = document.createElement('div');
+  div.className = 'msg ' + who;
+  div.textContent = text;
+  chat.appendChild(div);
+  div.scrollIntoView({behavior:'smooth',block:'end'});
+  return div;
+}
+
+async function askTutor(text) {
+  addMessage(text, 'user');
+  const waiting = addMessage('Thinking…', 'bot');
+  send.disabled = true;
+  try {
+    // The n8n chat backend will be connected in a later step.
+    await new Promise(resolve => setTimeout(resolve, 450));
+    waiting.textContent =
+      'The chat interface is ready! The online AI connection has not been configured yet. Your message was: ' + text;
+  } catch (error) {
+    waiting.textContent = 'Something went wrong. Please try again.';
+  } finally {
+    send.disabled = false;
+    input.focus();
+  }
+}
+
+form.addEventListener('submit', event => {
+  event.preventDefault();
+  const text = input.value.trim();
+  if (!text) return;
+  input.value = '';
+  askTutor(text);
+});
+
+document.querySelectorAll('[data-prompt]').forEach(button => {
+  button.addEventLi
